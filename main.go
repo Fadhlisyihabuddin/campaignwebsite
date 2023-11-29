@@ -1,6 +1,7 @@
 package main
 
 import (
+	"campaignwebsite/auth"
 	"campaignwebsite/handler"
 	"campaignwebsite/user"
 	"log"
@@ -20,7 +21,8 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	userSevice := user.NewService(userRepository)
-	userHandler := handler.NewUserHandler(userSevice)
+	authService := auth.NewService()
+	userHandler := handler.NewUserHandler(userSevice, authService)
 
 	r := gin.Default()
 	api := r.Group("api/v1")

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"campaignwebsite/auth"
 	"campaignwebsite/helper"
 	"campaignwebsite/user"
 	"fmt"
@@ -11,10 +12,11 @@ import (
 
 type userHandler struct {
 	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service) *userHandler {
-	return &userHandler{userService}
+func NewUserHandler(userService user.Service, authService auth.Service) *userHandler {
+	return &userHandler{userService, authService}
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
@@ -38,7 +40,15 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	formatter := user.FormatUser(newuser, "tokentokentoken")
+	token, err := h.authService.GenerateToken(newuser.ID)
+
+	if err != nil {
+		response := helper.ApiResponse(" Register account Failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := user.FormatUser(newuser, token)
 
 	response := helper.ApiResponse("Account has been registered", http.StatusOK, "succes", formatter)
 
@@ -68,7 +78,15 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 		return
 	}
 
-	formatter := user.FormatUser(loggeduser, "tokentokentoken")
+	token, err := h.authService.GenerateToken(loggeduser.ID)
+
+	if err != nil {
+		response := helper.ApiResponse(" Login account Failed", http.StatusUnprocessableEntity, "error", nil)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	formatter := user.FormatUser(loggeduser, token)
 
 	response := helper.ApiResponse("Login Succes", http.StatusOK, "succes", formatter)
 
