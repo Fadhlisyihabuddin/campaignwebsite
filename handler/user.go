@@ -35,7 +35,9 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 
 	newuser, err := h.userService.RegisterUser(input)
 	if err != nil {
-		response := helper.ApiResponse(" Register account Failed", http.StatusBadRequest, "error", nil)
+		errorMessage := gin.H{"errors": err.Error()}
+
+		response := helper.ApiResponse(" Register account Failed", http.StatusBadRequest, "error", errorMessage)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -52,7 +54,7 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 
 	response := helper.ApiResponse("Account has been registered", http.StatusOK, "succes", formatter)
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(200, response)
 }
 
 func (h *userHandler) LoginUser(c *gin.Context) {
@@ -126,7 +128,7 @@ func (h *userHandler) CheckEmailAvailable(c *gin.Context) {
 		metaMessage = "Email is Available"
 	}
 
-	response := helper.ApiResponse(metaMessage, http.StatusOK, "error", data)
+	response := helper.ApiResponse(metaMessage, http.StatusOK, "succes", data)
 	c.JSON(http.StatusOK, response)
 
 }
@@ -142,7 +144,7 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	currentUser := c.MustGet("currenUser").(user.User)
+	currentUser := c.MustGet("currentUser").(user.User)
 	userID := currentUser.ID
 
 	path := fmt.Sprintf("images/%d-%s", userID, file.Filename)

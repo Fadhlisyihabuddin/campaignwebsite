@@ -2,9 +2,11 @@ package main
 
 import (
 	"campaignwebsite/auth"
+	"campaignwebsite/campaign"
 	"campaignwebsite/handler"
 	"campaignwebsite/helper"
 	"campaignwebsite/user"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -24,9 +26,22 @@ func main() {
 	}
 
 	userRepository := user.NewRepository(db)
+	campaignRepository := campaign.NewRepository(db)
+
 	userSevice := user.NewService(userRepository)
 	authService := auth.NewService()
+
 	userHandler := handler.NewUserHandler(userSevice, authService)
+
+	campaigns, _ := campaignRepository.FindByID(62)
+
+	fmt.Println("==============")
+	fmt.Println("==============")
+	fmt.Println("==============")
+	fmt.Println(campaigns)
+	fmt.Println("==============")
+	fmt.Println("==============")
+	fmt.Println("==============")
 
 	r := gin.Default()
 	api := r.Group("api/v1")

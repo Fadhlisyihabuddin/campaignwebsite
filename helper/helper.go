@@ -20,12 +20,12 @@ func ApiResponse(message string, code int, status string, data interface{}) Resp
 		Status:  status,
 	}
 
-	jsonResponse := Response{
+	response := Response{
 		Meta: meta,
 		Data: data,
 	}
 
-	return jsonResponse
+	return response
 }
 
 func FormatError(err error) []string {

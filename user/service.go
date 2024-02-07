@@ -33,8 +33,18 @@ func (s *service) RegisterUser(input RegisterUserInput) (User, error) {
 		return user, err
 	}
 
-	user.Password = string(password)
+	user.PasswordHash = string(password)
 	user.Role = "user"
+
+	findEmail, err := s.repository.FindByEmail(input.Email)
+
+	if err != nil {
+		return findEmail, err
+	}
+
+	if user.Email == findEmail.Email {
+		return findEmail, errors.New("email udah ada")
+	}
 
 	newuser, err := s.repository.Save(user)
 	if err != nil {
@@ -57,7 +67,7 @@ func (s *service) LoginUser(input LoginUserInput) (User, error) {
 		return user, errors.New("email not found")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 
 	if err != nil {
 		return user, err
