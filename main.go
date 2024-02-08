@@ -28,8 +28,8 @@ func main() {
 	campaignRepository := campaign.NewRepository(db)
 
 	userSevice := user.NewService(userRepository)
-	authService := auth.NewService()
 	campaignService := campaign.NewService(campaignRepository)
+	authService := auth.NewService()
 
 	userHandler := handler.NewUserHandler(userSevice, authService)
 	campaignHandler := handler.NewCampaignHandler(campaignService)
@@ -44,6 +44,7 @@ func main() {
 	api.POST("/avatars", authMiddleware(authService, userSevice), userHandler.UploadAvatar)
 	api.GET("/campaigns", campaignHandler.FindCampaigns)
 	api.GET("/campaigns/:id", campaignHandler.GetCampaignDetail)
+	api.POST("/campaigns", authMiddleware(authService, userSevice), campaignHandler.CreateCampaign)
 
 	r.Run()
 }

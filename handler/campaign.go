@@ -3,6 +3,7 @@ package handler
 import (
 	"campaignwebsite/campaign"
 	"campaignwebsite/helper"
+	"campaignwebsite/user"
 	"net/http"
 	"strconv"
 
@@ -55,4 +56,36 @@ func (h *campaignHandler) GetCampaignDetail(c *gin.Context) {
 	response := helper.ApiResponse("Login Succes", http.StatusOK, "succes", formatter)
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *campaignHandler) CreateCampaign(c *gin.Context) {
+	var input campaign.CreateCampaignInput
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		errors := helper.FormatError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.ApiResponse(" Failed to create campaign", http.StatusBadRequest, "error", errorMessage)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	currentUser := c.MustGet("currentUser").(user.User)
+	input.User = currentUser
+
+	newCampaign, err := h.campaignService.CreateCampaign(input)
+	if err != nil {
+		errors := helper.FormatError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.ApiResponse(" Failed to create campaign", http.StatusBadRequest, "error", errorMessage)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := campaign.FormatCampaign(newCampaign)
+
+	response := helper.ApiResponse("Succes Create Campaign", http.StatusOK, "succes", formatter)
+
+	c.JSON(200, response)
 }
