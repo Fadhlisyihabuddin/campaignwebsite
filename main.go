@@ -6,7 +6,6 @@ import (
 	"campaignwebsite/handler"
 	"campaignwebsite/helper"
 	"campaignwebsite/user"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -30,26 +29,21 @@ func main() {
 
 	userSevice := user.NewService(userRepository)
 	authService := auth.NewService()
+	campaignService := campaign.NewService(campaignRepository)
 
 	userHandler := handler.NewUserHandler(userSevice, authService)
-
-	campaigns, _ := campaignRepository.FindByID(62)
-
-	fmt.Println("==============")
-	fmt.Println("==============")
-	fmt.Println("==============")
-	fmt.Println(campaigns)
-	fmt.Println("==============")
-	fmt.Println("==============")
-	fmt.Println("==============")
+	campaignHandler := handler.NewCampaignHandler(campaignService)
 
 	r := gin.Default()
+	r.Static("/images", "./images")
 	api := r.Group("api/v1")
 
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.LoginUser)
 	api.POST("/email_checker", userHandler.CheckEmailAvailable)
 	api.POST("/avatars", authMiddleware(authService, userSevice), userHandler.UploadAvatar)
+	api.GET("/campaigns", campaignHandler.FindCampaigns)
+	api.GET("/campaigns/:id", campaignHandler.GetCampaignDetail)
 
 	r.Run()
 }

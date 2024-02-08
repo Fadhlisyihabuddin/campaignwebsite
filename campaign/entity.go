@@ -1,6 +1,9 @@
 package campaign
 
-import "time"
+import (
+	"campaignwebsite/user"
+	"time"
+)
 
 type Campaign struct {
 	ID               int
@@ -15,7 +18,8 @@ type Campaign struct {
 	BackerCount      int
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
-	CampaignImages   []CampaignImage
+	CampaignImage    []CampaignImage
+	User             user.User
 }
 
 type CampaignImage struct {
